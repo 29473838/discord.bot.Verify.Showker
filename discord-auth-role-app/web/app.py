@@ -5,6 +5,7 @@ import requests
 import sys
 import os
 import asyncio
+import discord
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from shared.database import save_user_info, get_users
