@@ -1,6 +1,5 @@
 import json
 import os
-from shared.database import save_user_info, get_users
 
 DB_PATH = "shared/user_data.json"
 
