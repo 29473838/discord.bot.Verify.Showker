@@ -42,9 +42,28 @@ def callback():
         return f"Error: {error}", 400
 
     code = request.args.get('code')
-    if code:
-        return f"Authorization code: {code}"
-    return "No code received."
+    if not code:
+        return "No code received."
+
+    # Discord에 access token 요청
+    data = {
+        'client_id': os.getenv('DISCORD_CLIENT_ID'),
+        'client_secret': os.getenv('DISCORD_CLIENT_SECRET'),
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': os.getenv('DISCORD_REDIRECT_URI'),
+        'scope': 'identify guilds.join'
+    }
+
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.post("https://discord.com/api/oauth2/token", data=data, headers=headers)
+    token_json = response.json()
+
+    # 결과 확인
+    return token_json
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
