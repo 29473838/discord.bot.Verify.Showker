@@ -1,5 +1,6 @@
 #!/bin/bash
-cd C:\Users\Korea\Desktop\discord-auth-role-app
-docker-compose down
-docker-compose build
-docker-compose up -d
+cd web
+export FLASK_APP=app.py
+export FLASK_RUN_HOST=0.0.0.0
+export FLASK_RUN_PORT=10000
+flask run
