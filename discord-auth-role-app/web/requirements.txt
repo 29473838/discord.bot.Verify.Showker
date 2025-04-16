@@ -1,5 +1,7 @@
+flask
 fastapi
 uvicorn
 jinja2
+geoip2
 python-multipart
 requests
