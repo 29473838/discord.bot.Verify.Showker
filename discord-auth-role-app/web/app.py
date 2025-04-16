@@ -5,18 +5,11 @@ import requests
 import sys
 import os
 import asyncio
-import discord
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from shared.database import save_user_info, get_users
 
 app = Flask(__name__)
-
-# Discord 봇 설정
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
-bot = commands.Bot(command_prefix="!", intents=intents)
 
 @app.route("/consent")
 def consent():
