@@ -23,7 +23,6 @@ def submit():
     username = request.form.get("username")
     joined_at = request.form.get("joined_at")
 
-    # 국가 및 위치 조회
     geo = requests.get(f"http://ip-api.com/json/{ip}").json()
     country = geo.get("country")
     region = geo.get("regionName")
@@ -44,26 +43,8 @@ def callback():
 
     code = request.args.get('code')
     if code:
-        # 여기서 'code'로 액세스 토큰을 얻는 로직 추가
         return f"Authorization code: {code}"
     return "No code received."
 
-@bot.event
-async def on_ready():
-    print(f"봇 로그인됨: {bot.user}")
-
-@bot.command(name="인증")
-async def send_auth(ctx):
-    await ctx.send("인증 명령 실행!")
-
-# Flask 서버와 Discord 봇을 동시에 실행
-def run_bot():
-    loop = asyncio.get_event_loop()
-    loop.create_task(bot.start(os.getenv('DISCORD_BOT_TOKEN')))
-    loop.run_forever()
-
 if __name__ == '__main__':
-    from threading import Thread
-    thread = Thread(target=run_bot)
-    thread.start()
     app.run(debug=True, host='0.0.0.0', port=5000)

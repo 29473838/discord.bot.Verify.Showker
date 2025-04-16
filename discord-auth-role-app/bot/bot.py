@@ -15,4 +15,11 @@ async def on_ready():
     print(f"✅ 봇 로그인됨: {bot.user}")
     setup_commands(bot)
 
+@bot.command(name="인증")
+async def send_auth(ctx):
+    await ctx.send("인증 명령 실행!")
+
+if __name__ == "__main__":
+    bot.run(os.getenv('DISCORD_BOT_TOKEN'))
+
 bot.run(os.getenv("DISCORD_BOT_TOKEN"))
