@@ -1,11 +1,14 @@
 from . import init_user_data
 from flask import Flask, render_template, request, redirect, url_for
 from .shared.database import save_user_info, get_users
+from shared.database import get_google_sheet
+from shared.spreadsheet import format_spreadsheet
 import socket
 import requests
 import sys
 import os
 import asyncio
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # 항상 현재 경로 기준이 아닌 프로젝트 루트 기준으로 경로 지정
@@ -75,3 +78,9 @@ def callback():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+sheet = get_google_sheet()
+
+# 예시: 첫 번째 행의 값을 출력
+data = sheet.row_values(1)
+print(data)

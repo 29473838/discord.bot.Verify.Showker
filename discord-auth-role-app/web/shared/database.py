@@ -5,6 +5,8 @@ from google.oauth2.service_account import Credentials
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from dotenv import load_dotenv
+from google.oauth2 import service_account
+import gspread
 
 # .env 파일의 값을 환경 변수로 로드
 load_dotenv()
@@ -105,3 +107,19 @@ def save_user_info(discord_id, username, joined_at, ip, country, region):
     
     # 구글 시트에도 저장
     save_user_info_to_sheets(discord_id, username, joined_at, ip, country, region)
+
+
+def get_google_sheet():
+    # 서비스 계정 파일을 통한 인증
+    credentials = service_account.Credentials.from_service_account_file(
+        'path/to/your/service-account-file.json',
+        scopes=["https://www.googleapis.com/auth/spreadsheets"]
+    )
+
+    # gspread 클라이언트 연결
+    client = gspread.authorize(credentials)
+
+    # 예시: 구글 스프레드시트의 첫 번째 워크시트에 접근
+    sheet = client.open('Your Spreadsheet Name').sheet1
+    
+    return sheet
