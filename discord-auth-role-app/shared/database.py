@@ -28,5 +28,12 @@ def get_users():
     if not os.path.exists(DATA_FILE):
         return []
 
+        
+    try:
+        with open(DATA_FILE, 'r') as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return []
+
     with open(DATA_FILE, 'r') as f:
         return json.load(f)
