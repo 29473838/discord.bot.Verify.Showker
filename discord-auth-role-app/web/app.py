@@ -8,8 +8,6 @@ import os
 import asyncio
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from shared.database import save_user_info, get_users
-
 # 항상 현재 경로 기준이 아닌 프로젝트 루트 기준으로 경로 지정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "user_data.json")
