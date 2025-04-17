@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request
 from . import init_user_data
-from .shared.database import save_user_info, get_users
-from .shared.spreadsheet import update_spreadsheet  # 상대 경로로 import
+from .shared.database import save_user_info, get_users, get_google_sheet
+from .shared.spreadsheet import update_spreadsheet
 import requests
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -62,15 +65,19 @@ def callback():
     }
 
     response = requests.post("https://discord.com/api/oauth2/token", data=data, headers=headers)
+
+    if response.status_code != 200:
+        return f"Discord 인증 실패: {response.text}", 500
+
     return response.json()
 
-# 👇 여기에 직접 테스트용 코드 실행
+# 테스트용 실행
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
 
-    # 테스트용: 개발 환경에서만 실행
-    from .shared.database import get_google_sheet
-    sheet = get_google_sheet()
-    print("첫 번째 행:", sheet.row_values(1))
-
-    update_spreadsheet()
+    try:
+        sheet = get_google_sheet()
+        print("첫 번째 행:", sheet.row_values(1))
+        update_spreadsheet()
+    except Exception as e:
+        print(f"[ERROR] Google Sheet 처리 중 문제 발생: {e}")
