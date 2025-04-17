@@ -8,7 +8,6 @@ import json
 # 환경변수 불러오기
 load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SERVICE_ACCOUNT_FILE = os.path.join(BASE_DIR, '..', 'credentials.json')
 
 SPREADSHEET_NAME = os.getenv("SPREADSHEET_NAME", "인증리스트")  # 기본값 지정
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
