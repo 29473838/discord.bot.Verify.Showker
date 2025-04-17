@@ -1,14 +1,17 @@
 import json
 import os
 
-DB_PATH = "shared/user_data.json"
+DATA_FILE = os.path.join(os.path.dirname(__file__), "user_data.json")
+
 
 def save_user_info(discord_id, username, joined_at, ip, country, region):
-    if not os.path.exists(DB_PATH):
-        with open(DB_PATH, "w") as f:
+    data = []
+
+    if not os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'w') as f:
             json.dump([], f)
 
-    with open(DB_PATH, "r") as f:
+    with open(DATA_FILE, 'r') as f:
         data = json.load(f)
 
     data.append({
@@ -20,11 +23,12 @@ def save_user_info(discord_id, username, joined_at, ip, country, region):
         "region": region
     })
 
-    with open(DB_PATH, "w") as f:
-        json.dump(data, f)
+    with open(DATA_FILE, 'w') as f:
+        json.dump(data, f, indent=4)
 
 def get_users():
-    if not os.path.exists(DB_PATH):
+    if not os.path.exists(DATA_FILE):
         return []
-    with open(DB_PATH, "r") as f:
+
+    with open(DATA_FILE, 'r') as f:
         return json.load(f)
