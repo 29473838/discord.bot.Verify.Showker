@@ -1,3 +1,4 @@
+import init_user_data  # 자동으로 user_data.json 초기화
 from flask import Flask, render_template, request, redirect, url_for
 from shared.database import save_user_info, get_users
 import socket
