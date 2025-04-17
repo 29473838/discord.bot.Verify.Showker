@@ -5,8 +5,6 @@ DATA_FILE = os.path.join(os.path.dirname(__file__), "user_data.json")
 
 
 def save_user_info(discord_id, username, joined_at, ip, country, region):
-    data = []
-
     if not os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'w') as f:
             json.dump([], f)
