@@ -2,7 +2,7 @@ import gspread
 import os
 from dotenv import load_dotenv
 from google.oauth2 import service_account
-from gspread_formatting import format_cell_range, cellFormat, textFormat, colors
+from gspread_formatting import format_cell_range, cellFormat, textFormat, Color
 
 # 환경변수 불러오기
 load_dotenv()
@@ -36,14 +36,14 @@ def apply_styles(sheet):
     try:
         # A1 셀: 회색 배경 + 흰 글씨 + 볼드
         format_cell_range(sheet, 'A1', cellFormat(
-            backgroundColor={'red': 0.5, 'green': 0.5, 'blue': 0.5},  # 회색 배경
-            textFormat=textFormat(bold=True, foregroundColor={'red': 1, 'green': 1, 'blue': 1})  # 흰색 글씨
+            backgroundColor=Color(0.5, 0.5, 0.5),  # 회색 배경
+            textFormat=textFormat(bold=True, foregroundColor=Color(1, 1, 1))  # 흰색 글씨
         ))
 
         # B1:D1 셀: 초록색 배경 + 흰 글씨 + 볼드
         format_cell_range(sheet, 'B1:D1', cellFormat(
-            backgroundColor={'red': 0, 'green': 0.5, 'blue': 0},  # 초록색 배경
-            textFormat=textFormat(bold=True, foregroundColor={'red': 1, 'green': 1, 'blue': 1})  # 흰색 글씨, 볼드
+            backgroundColor=Color(0, 0.5, 0),  # 초록색 배경
+            textFormat=textFormat(bold=True, foregroundColor=Color(1, 1, 1))  # 흰색 글씨, 볼드
         ))
 
         # A2 셀: 가운데 정렬
