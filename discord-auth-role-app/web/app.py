@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from .shared.database import save_user_info, get_users
 from shared.database import get_google_sheet
 from shared.spreadsheet import format_spreadsheet
+from spreadsheet import update_spreadsheet  # spreadsheet.py에서 함수를 import
 import socket
 import requests
 import sys
@@ -16,6 +17,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "user_data.json")
 
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    update_spreadsheet()  # 스프레드시트 업데이트 실행
+    return "스프레드시트가 업데이트되었습니다!"
 
 @app.route("/consent")
 def consent():
