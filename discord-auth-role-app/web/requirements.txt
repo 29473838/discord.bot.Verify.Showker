@@ -6,3 +6,4 @@ geoip2
 python-multipart
 requests
 gspread
+python-dotenv
