@@ -15,10 +15,15 @@ SHEET_NAME = 'Sheet1'
 SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), '..', 'credentials.json')
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-# 구글 시트 인증 함수
 def authenticate_google_sheets():
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
+    credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+
+    if not credentials_json:
+        raise ValueError("GOOGLE_CREDENTIALS_JSON 환경 변수가 설정되지 않았습니다.")
+
+    info = json.loads(credentials_json)
+    credentials = service_account.Credentials.from_service_account_info(
+        info,
         scopes=SCOPES
     )
     return gspread.authorize(credentials)
