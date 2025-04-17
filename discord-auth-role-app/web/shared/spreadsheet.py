@@ -3,16 +3,23 @@ import gspread
 from gspread_formatting import *
 from gspread_formatting import colors
 
-def authorize_spreadsheet():
-    # 구글 스프레드시트 인증
+# gspread 클라이언트 연결
+client = gspread.authorize(credentials)
+
+# 구글 스프레드시트 인증 함수
+def authenticate_google_sheets():
     credentials = service_account.Credentials.from_service_account_file(
-        'path/to/your/service-account-file.json',  # 서비스 계정 파일 경로
+        'path/to/your/service-account-file.json',
         scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
     )
-
-    # gspread 클라이언트 연결
     client = gspread.authorize(credentials)
     return client
+
+# 스프레드시트 연동
+def open_spreadsheet():
+    client = authenticate_google_sheets()
+    sheet = client.open('Your Spreadsheet Name').sheet1
+    return sheet
 
 def update_spreadsheet():
     # 인증 후 스프레드시트 열기
