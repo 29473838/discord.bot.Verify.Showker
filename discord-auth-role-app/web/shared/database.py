@@ -37,14 +37,15 @@ def save_user_info_to_sheets(discord_id, username, joined_at, ip, country, regio
 
 # 유저 정보 저장 (로컬 + 구글 시트)
 def save_user_info(discord_id, username, joined_at, ip, country, region):
-    try:
-        if not os.path.exists(DATA_FILE):
-            with open(DATA_FILE, 'w', encoding='utf-8') as f:
-                json.dump([], f)
+    # JSON 파일이 없거나 비어 있을 경우 초기화
+    if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
 
+    try:
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
-    except (json.JSONDecodeError, FileNotFoundError):
+    except json.JSONDecodeError:
         data = []
 
     data.append({
@@ -63,11 +64,10 @@ def save_user_info(discord_id, username, joined_at, ip, country, region):
 
 # 로컬 JSON에서 유저 목록 불러오기
 def get_users():
-    try:
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, FileNotFoundError):
-        return []
+    # JSON 파일이 없거나 비어 있을 경우 초기화
+    if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
 
 # 구글 시트 객체 반환
 def get_google_sheet():
