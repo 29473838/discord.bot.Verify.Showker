@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from google.oauth2 import service_account
 from gspread_formatting import format_cell_range, cellFormat, textFormat, Color
+import json
 
 # 환경변수 불러오기
 load_dotenv()
