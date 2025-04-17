@@ -7,3 +7,4 @@ python-multipart
 requests
 gspread
 python-dotenv
+google-auth>=2.0.0
