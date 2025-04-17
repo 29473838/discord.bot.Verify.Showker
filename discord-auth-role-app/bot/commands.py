@@ -30,6 +30,15 @@ async def set_auth_channel(ctx, channel_name: str):
             return
     await ctx.send("❌ 해당 채널을 찾을 수 없습니다.")
 
+@bot.command()
+async def 인증채널(ctx, channel_name: str):
+    # 채널 이름이 필요하다는 것을 알려주는 코드
+    if not channel_name:
+        await ctx.send("채널 이름을 입력해 주세요.")
+        return
+
+    # 이후 채널을 사용하는 코드
+
 # 인증 역할 설정 명령어
 @bot.command(name="인증역할")
 async def set_auth_role(ctx, role_name: str):

@@ -17,18 +17,23 @@ def consent():
 
 @app.route("/submit", methods=["POST"])
 def submit():
-    ip = request.remote_addr
-    user_agent = request.headers.get('User-Agent')
-    discord_id = request.form.get("discord_id")
-    username = request.form.get("username")
-    joined_at = request.form.get("joined_at")
+    try:
+        ip = request.remote_addr
+        user_agent = request.headers.get('User-Agent')
+        discord_id = request.form.get("discord_id")
+        username = request.form.get("username")
+        joined_at = request.form.get("joined_at")
 
-    geo = requests.get(f"http://ip-api.com/json/{ip}").json()
-    country = geo.get("country")
-    region = geo.get("regionName")
+        print("수신된 값들:", discord_id, username, joined_at)
 
-    save_user_info(discord_id, username, joined_at, ip, country, region)
-    return render_template("success.html")
+        geo = requests.get(f"http://ip-api.com/json/{ip}").json()
+        country = geo.get("country")
+        region = geo.get("regionName")
+
+        save_user_info(discord_id, username, joined_at, ip, country, region)
+        return render_template("success.html")
+    except Exception as e:
+        return f"에러 발생: {str(e)}", 500
 
 @app.route("/admin")
 def admin():
