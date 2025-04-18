@@ -12,21 +12,24 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "user_data.json")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 SHEET_NAME = 'Sheet1'
-SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), '..', 'credentials.json')
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
+# Google Sheets 인증
 def authenticate_google_sheets():
     credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
-
     if not credentials_json:
-        raise ValueError("GOOGLE_CREDENTIALS_JSON 환경 변수가 설정되지 않았습니다.")
+        raise ValueError("❌ GOOGLE_CREDENTIALS_JSON 환경 변수가 비어있습니다.")
 
-    info = json.loads(credentials_json)
-    credentials = service_account.Credentials.from_service_account_info(
-        info,
-        scopes=SCOPES
-    )
-    return gspread.authorize(credentials)
+    try:
+        info = json.loads(credentials_json)
+        credentials = service_account.Credentials.from_service_account_info(
+            info,
+            scopes=SCOPES
+        )
+        return gspread.authorize(credentials)
+    except Exception as e:
+        print(f"[ERROR] 구글 인증 실패: {e}")
+        raise
 
 # 구글 시트에 유저 정보 저장
 def save_user_info_to_sheets(discord_id, username, joined_at, ip, country, region):
@@ -64,10 +67,16 @@ def save_user_info(discord_id, username, joined_at, ip, country, region):
 
 # 로컬 JSON에서 유저 목록 불러오기
 def get_users():
-    # JSON 파일이 없거나 비어 있을 경우 초기화
     if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump([], f)
+        return []
+
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return []
 
 # 구글 시트 객체 반환
 def get_google_sheet():
