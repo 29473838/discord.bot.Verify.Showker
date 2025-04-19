@@ -1,71 +1,84 @@
-from flask import Flask, render_template, request
-from shared.database import save_user_info, get_users, get_google_sheet
-from shared.spreadsheet import update_spreadsheet
-import requests
+import json
 import os
+import gspread
+from google.oauth2 import service_account
 from dotenv import load_dotenv
 
-# 환경 변수 로드
+# 환경변수 로드
 load_dotenv()
 
-app = Flask(__name__)
+# 상수 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(BASE_DIR, "user_data.json")
+SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
+SHEET_NAME = 'Sheet1'
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-@app.route("/")
-def index():
-    return "서버가 실행 중입니다."
+# Google Sheets 인증
+def authenticate_google_sheets():
+    credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+    if not credentials_json:
+        raise ValueError("❌ GOOGLE_CREDENTIALS_JSON 환경 변수가 비어있습니다.")
 
-@app.route("/consent")
-def consent():
-    return render_template("consent.html")
-
-@app.route("/submit", methods=["POST"])
-def submit():
     try:
-        ip = request.remote_addr
-        user_agent = request.headers.get("User-Agent")
-        discord_id = request.form.get("discord_id")
-        username = request.form.get("username")
-        joined_at = request.form.get("joined_at")
-
-        geo = requests.get(f"http://ip-api.com/json/{ip}").json()
-        country = geo.get("country")
-        region = geo.get("regionName")
-
-        save_user_info(discord_id, username, joined_at, ip, country, region)
-        update_spreadsheet()  # 구글 시트 업데이트
-        return render_template("success.html")
+        info = json.loads(credentials_json)
+        credentials = service_account.Credentials.from_service_account_info(
+            info,
+            scopes=SCOPES
+        )
+        return gspread.authorize(credentials)
     except Exception as e:
-        return f"에러 발생: {str(e)}", 500
+        print(f"[ERROR] 구글 인증 실패: {e}")
+        raise
 
-@app.route("/admin")
-def admin():
-    users = get_users()
-    return {"users": users}
+# 구글 시트에 유저 정보 저장
+def save_user_info_to_sheets(discord_id, username, joined_at, ip, country, region):
+    client = authenticate_google_sheets()
+    sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
+    row = [discord_id, username, joined_at, ip, country, region]
+    sheet.append_row(row)
 
-@app.route("/callback")
-def callback():
-    error = request.args.get("error")
-    if error:
-        return f"Error: {error}", 400
+# 유저 정보 저장 (로컬 + 구글 시트)
+def save_user_info(discord_id, username, joined_at, ip, country, region):
+    # JSON 파일이 없거나 비어 있을 경우 초기화
+    if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
 
-    code = request.args.get("code")
-    if not code:
-        return "No code received."
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except json.JSONDecodeError:
+        data = []
 
-    data = {
-        "client_id": os.getenv("CLIENT_ID"),
-        "client_secret": os.getenv("CLIENT_SECRET"),
-        "grant_type": "authorization_code",
-        "code": code,
-        "redirect_uri": os.getenv("DISCORD_REDIRECT_URI"),
-        "scope": "identify guilds.join"
-    }
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    resp = requests.post("https://discord.com/api/oauth2/token", data=data, headers=headers)
-    if resp.status_code != 200:
-        return f"Discord 인증 실패: {resp.text}", 500
-    return resp.json()
+    data.append({
+        "discord_id": discord_id,
+        "username": username,
+        "joined_at": joined_at,
+        "ip": ip,
+        "country": country,
+        "region": region
+    })
 
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+    save_user_info_to_sheets(discord_id, username, joined_at, ip, country, region)
+
+# 로컬 JSON에서 유저 목록 불러오기
+def get_users():
+    if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
+        return []
+
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return []
+
+# 구글 시트 객체 반환
+def get_google_sheet():
+    client = authenticate_google_sheets()
+    return client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
