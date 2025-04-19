@@ -1,12 +1,12 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, render_template, request
 from . import init_user_data
 from .shared.database import save_user_info, get_users, get_google_sheet
 from .shared.spreadsheet import update_spreadsheet
 import requests
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__, template_folder="templates")
 
