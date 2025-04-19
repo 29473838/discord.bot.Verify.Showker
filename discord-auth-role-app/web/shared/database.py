@@ -27,30 +27,31 @@ SCOPES = [
 
 def authenticate_google_sheets():
     credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
-    if not credentials_json:
-        raise ValueError("❌ GOOGLE_CREDENTIALS_JSON 환경 변수가 비어있습니다.")
 
-    try:
-        info = json.loads(credentials_json)
-    except json.JSONDecodeError as e:
-       raise ValueError(f"❌ GOOGLE_CREDENTIALS_JSON 파싱 오류: {e}")
-       
     if credentials_json:
-        info = json.loads(credentials_json)
-        creds = service_account.Credentials.from_service_account_info(
-            info,
-            scopes=SCOPES
-        )
-    else:
-        if not os.path.exists(SERVICE_ACCOUNT_FILE):
-            raise FileNotFoundError(
-                f"SERVICE_ACCOUNT_FILE not found: {SERVICE_ACCOUNT_FILE}"
+        try:
+            info = json.loads(credentials_json)
+            # 🔑 private_key의 이스케이프 줄바꿈을 실제 줄바꿈으로 복원
+            info["private_key"] = info["private_key"].replace("\\n", "\n")
+            creds = service_account.Credentials.from_service_account_info(
+                info,
+                scopes=SCOPES
             )
+        except json.JSONDecodeError as e:
+            raise ValueError(f"❌ GOOGLE_CREDENTIALS_JSON 파싱 오류: {e}")
+        except KeyError as e:
+            raise ValueError(f"❌ 필수 키 누락: {e}")
+    else:
+        # fallback: 로컬 파일 사용
+        if not os.path.exists(SERVICE_ACCOUNT_FILE):
+            raise FileNotFoundError(f"❌ SERVICE_ACCOUNT_FILE not found: {SERVICE_ACCOUNT_FILE}")
         creds = service_account.Credentials.from_service_account_file(
             SERVICE_ACCOUNT_FILE,
             scopes=SCOPES
         )
+
     return gspread.authorize(creds)
+
 
 # 구글 시트에 유저 정보 저장
 
