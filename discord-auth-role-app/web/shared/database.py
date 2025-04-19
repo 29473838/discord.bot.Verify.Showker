@@ -27,6 +27,14 @@ SCOPES = [
 
 def authenticate_google_sheets():
     credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+    if not credentials_json:
+    raise ValueError("❌ GOOGLE_CREDENTIALS_JSON 환경 변수가 비어있습니다.")
+
+    try:
+        info = json.loads(credentials_json)
+    except json.JSONDecodeError as e:
+       raise ValueError(f"❌ GOOGLE_CREDENTIALS_JSON 파싱 오류: {e}")
+       
     if credentials_json:
         info = json.loads(credentials_json)
         creds = service_account.Credentials.from_service_account_info(
