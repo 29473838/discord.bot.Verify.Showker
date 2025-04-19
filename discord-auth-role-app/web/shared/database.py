@@ -12,11 +12,17 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "user_data.json")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 SHEET_NAME = 'Sheet1'
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/drive"]
+SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE", "credentials.json")
 
 # Google Sheets 인증
 def authenticate_google_sheets():
     credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE,
+        scopes=SCOPES
+    )
     if not credentials_json:
         raise ValueError("❌ GOOGLE_CREDENTIALS_JSON 환경 변수가 비어있습니다.")
 
@@ -30,6 +36,7 @@ def authenticate_google_sheets():
     except Exception as e:
         print(f"[ERROR] 구글 인증 실패: {e}")
         raise
+     return gspread.authorize(creds)
 
 # 구글 시트에 유저 정보 저장
 def save_user_info_to_sheets(discord_id, username, joined_at, ip, country, region):
