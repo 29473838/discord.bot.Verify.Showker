@@ -41,6 +41,7 @@ def authenticate_google_sheets():
             raise ValueError(f"❌ GOOGLE_CREDENTIALS_JSON 파싱 오류: {e}")
         except KeyError as e:
             raise ValueError(f"❌ 필수 키 누락: {e}")
+
     else:
         # fallback: 로컬 파일 사용
         if not os.path.exists(SERVICE_ACCOUNT_FILE):
@@ -49,6 +50,7 @@ def authenticate_google_sheets():
             SERVICE_ACCOUNT_FILE,
             scopes=SCOPES
         )
+        raise ValueError("❌ GOOGLE_CREDENTIALS_JSON 환경 변수가 설정되지 않았습니다.")
 
     return gspread.authorize(creds)
 
