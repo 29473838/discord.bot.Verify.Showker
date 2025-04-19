@@ -51,6 +51,21 @@ def callback():
     if not code:
         return "No code received."
 
+    # Discord OAuth2 토큰 요청
+    data = {
+        "client_id": os.getenv("CLIENT_ID"),
+        "client_secret": os.getenv("CLIENT_SECRET"),
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": os.getenv("DISCORD_REDIRECT_URI"),
+        "scope": "identify guilds.join"
+    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    resp = requests.post("https://discord.com/api/oauth2/token", data=data, headers=headers)
+    if resp.status_code != 200:
+        return f"Discord 인증 실패: {resp.text}", 500
+    return resp.json()
+
     data = {
         "client_id": os.getenv("DISCORD_CLIENT_ID"),
         "client_secret": os.getenv("DISCORD_CLIENT_SECRET"),
