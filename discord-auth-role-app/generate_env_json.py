@@ -2,7 +2,7 @@
 import json
 
 with open("credentials.json", "r", encoding="utf-8") as f:
-    credentials = json.load(f)
+    data = json.load(f)
 
-json_str = json.dumps(credentials).replace("\n", "\\n")
-print(json_str)
+converted = json.dumps(data).replace("\n", "\\n")
+print(converted)
