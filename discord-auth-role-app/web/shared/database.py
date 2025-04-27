@@ -1,5 +1,5 @@
-import json
 import os
+import json
 import gspread
 from google.oauth2 import service_account
 from dotenv import load_dotenv
@@ -12,14 +12,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "user_data.json")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 SHEET_NAME = os.getenv("SHEET_NAME", "Sheet1")
-SERVICE_ACCOUNT_FILE = os.getenv(
-    "SERVICE_ACCOUNT_FILE",
-    os.path.join(BASE_DIR, "..", "credentials.json")
-)
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
+SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE", os.path.join(BASE_DIR, "..", "credentials.json"))
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
 # Google Sheets 인증
 # GOOGLE_CREDENTIALS_JSON이 설정되어 있으면 이를 사용하고,
@@ -32,7 +26,7 @@ def authenticate_google_sheets():
         try:
             info = json.loads(credentials_json)
 
-            # 🔑 이스케이프된 줄바꿈 복원
+            # 🔑 private_key 복원
             if "private_key" in info:
                 info["private_key"] = info["private_key"].replace("\\n", "\n")
 
@@ -42,16 +36,13 @@ def authenticate_google_sheets():
             )
             return gspread.authorize(creds)
 
-        except json.JSONDecodeError as e:
-            raise ValueError(f"❌ GOOGLE_CREDENTIALS_JSON 파싱 오류: {e}")
-        except KeyError as e:
-            raise ValueError(f"❌ GOOGLE_CREDENTIALS_JSON 필수 키 누락: {e}")
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"⚠️ GOOGLE_CREDENTIALS_JSON 오류 발생, 파일로 대체합니다: {e}")
 
-    # fallback to SERVICE_ACCOUNT_FILE
-    service_account_file = os.getenv("SERVICE_ACCOUNT_FILE", "credentials.json")
-    if os.path.exists(service_account_file):
+    # fallback: credentials.json 파일 사용
+    if os.path.exists(SERVICE_ACCOUNT_FILE):
         creds = service_account.Credentials.from_service_account_file(
-            service_account_file,
+            SERVICE_ACCOUNT_FILE,
             scopes=SCOPES
         )
         return gspread.authorize(creds)
