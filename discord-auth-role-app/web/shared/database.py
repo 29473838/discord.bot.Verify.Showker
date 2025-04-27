@@ -26,8 +26,8 @@ def authenticate_google_sheets():
         try:
             info = json.loads(credentials_json)
 
-            # 🔑 private_key 복원
             if "private_key" in info:
+                # 🔥 여기 중요
                 info["private_key"] = info["private_key"].replace("\\n", "\n")
 
             creds = service_account.Credentials.from_service_account_info(
@@ -39,7 +39,6 @@ def authenticate_google_sheets():
         except (json.JSONDecodeError, KeyError) as e:
             print(f"⚠️ GOOGLE_CREDENTIALS_JSON 오류 발생, 파일로 대체합니다: {e}")
 
-    # fallback: credentials.json 파일 사용
     if os.path.exists(SERVICE_ACCOUNT_FILE):
         creds = service_account.Credentials.from_service_account_file(
             SERVICE_ACCOUNT_FILE,
