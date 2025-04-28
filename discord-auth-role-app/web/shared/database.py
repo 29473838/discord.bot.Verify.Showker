@@ -18,8 +18,12 @@ credentials_path = "credentials.json"
 credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
 
 if credentials_json and not os.path.exists(credentials_path):
+    # 🔥 수정된 안전한 방식
+    info = json.loads(credentials_json)  # JSON 문자열 파싱
+    if "private_key" in info:
+        info["private_key"] = info["private_key"].replace("\\n", "\n")
     with open(credentials_path, "w", encoding="utf-8") as f:
-        f.write(credentials_json.replace("\\n", "\n"))
+        json.dump(info, f, ensure_ascii=False, indent=2)
 
 # Google Sheets 인증
 # GOOGLE_CREDENTIALS_JSON이 설정되어 있으면 이를 사용하고,
