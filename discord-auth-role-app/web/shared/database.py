@@ -14,6 +14,12 @@ SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 SHEET_NAME = os.getenv("SHEET_NAME", "Sheet1")
 SERVICE_ACCOUNT_FILE = os.getenv("SERVICE_ACCOUNT_FILE", os.path.join(BASE_DIR, "..", "credentials.json"))
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+credentials_path = "credentials.json"
+credentials_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+
+if credentials_json and not os.path.exists(credentials_path):
+    with open(credentials_path, "w", encoding="utf-8") as f:
+        f.write(credentials_json.replace("\\n", "\n"))
 
 # Google Sheets 인증
 # GOOGLE_CREDENTIALS_JSON이 설정되어 있으면 이를 사용하고,
