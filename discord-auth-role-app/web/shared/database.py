@@ -29,7 +29,7 @@ if credentials_json and not os.path.exists(credentials_path):
 def _data_file():
     return os.path.join(current_app.instance_path, "user_data.json")
 
-def save_user_info(...):
+def save_user_info(discord_id, username, joined_at, ip, country, region):
     path = _data_file()
     # 이하 기존 로직, path 변수로 파일 읽고 쓰기
 
