@@ -7,6 +7,7 @@ import requests
 from .shared.database import save_user_info, get_users, get_google_sheet
 from .shared.spreadsheet import update_spreadsheet
 import os
+import traceback
 
 app = Flask(__name__, template_folder="templates")
 
@@ -34,7 +35,14 @@ def submit():
         save_user_info(discord_id, username, joined_at, ip, country, region)
         return render_template("success.html")
     except Exception as e:
-        return f"에러 발생: {str(e)}", 500
+        # 터미널(또는 Render 로그)에 전체 스택 트레이스 출력
+        traceback.print_exc()
+
+        # e.__class__.__name__ 과 repr(e) 로 좀 더 구체적인 정보도 출력해 줍니다.
+        return (
+            f"에러 발생 ({e.__class__.__name__}): {repr(e)}",
+            500
+        )
 
 @app.route("/admin")
 def admin():
