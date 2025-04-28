@@ -3,6 +3,7 @@ import json
 import gspread
 from google.oauth2 import service_account
 from dotenv import load_dotenv
+from flask import current_app
 
 # 환경 변수 로드
 load_dotenv()
@@ -24,6 +25,17 @@ if credentials_json and not os.path.exists(credentials_path):
         info["private_key"] = info["private_key"].replace("\\n", "\n")
     with open(credentials_path, "w", encoding="utf-8") as f:
         json.dump(info, f, ensure_ascii=False, indent=2)
+
+def _data_file():
+    return os.path.join(current_app.instance_path, "user_data.json")
+
+def save_user_info(...):
+    path = _data_file()
+    # 이하 기존 로직, path 변수로 파일 읽고 쓰기
+
+def get_users():
+    path = _data_file()
+    # 이하 기존 로직
 
 # Google Sheets 인증
 # GOOGLE_CREDENTIALS_JSON이 설정되어 있으면 이를 사용하고,

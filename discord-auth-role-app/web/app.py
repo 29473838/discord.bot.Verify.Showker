@@ -1,15 +1,18 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, render_template, request
-from . import init_user_data
-import requests
+import os, traceback, requests
+from flask import Flask, render_template, request, current_app
+
+# shared/database.py 에서 current_app.instance_path 기반으로 DATA_FILE을 가져오도록 수정 필요
 from .shared.database import save_user_info, get_users, get_google_sheet
 from .shared.spreadsheet import update_spreadsheet
-import os
-import traceback
 
-app = Flask(__name__, template_folder="templates")
+# ① instance_relative_config=True 로 플라스크 인스턴스 폴더 사용
+app = Flask(__name__, template_folder="templates", instance_relative_config=True)
+
+# ② 인스턴스 폴더(instance/)가 없다면 생성
+os.makedirs(app.instance_path, exist_ok=True)
 
 @app.route("/")
 def index():
@@ -22,28 +25,25 @@ def consent():
 @app.route("/submit", methods=["POST"])
 def submit():
     try:
-        ip = request.remote_addr
+        ip         = request.remote_addr
         user_agent = request.headers.get("User-Agent")
-        discord_id = request.form.get("discord_id")
-        username = request.form.get("username")
-        joined_at = request.form.get("joined_at")
+        discord_id = request.form["discord_id"]
+        username   = request.form["username"]
+        joined_at  = request.form["joined_at"]
 
-        geo = requests.get(f"http://ip-api.com/json/{ip}").json()
+        geo     = requests.get(f"http://ip-api.com/json/{ip}").json()
         country = geo.get("country")
-        region = geo.get("regionName")
+        region  = geo.get("regionName")
 
+        # shared/database.py 의 save_user_info() 가 current_app.instance_path/user_data.json에 씁니다
         save_user_info(discord_id, username, joined_at, ip, country, region)
         return render_template("success.html")
+
     except Exception as e:
-        # 터미널(또는 Render 로그)에 전체 스택 트레이스 출력
+        # 로그에 전체 스택트레이스 찍어 줍니다
         traceback.print_exc()
-
-        # e.__class__.__name__ 과 repr(e) 로 좀 더 구체적인 정보도 출력해 줍니다.
-        return (
-            f"에러 발생 ({e.__class__.__name__}): {repr(e)}",
-            500
-        )
-
+        return f"에러 발생 ({e.__class__.__name__}): {repr(e)}", 500
+        
 @app.route("/admin")
 def admin():
     users = get_users()
@@ -94,10 +94,11 @@ def callback():
 
     return response.json()
 
-# 테스트용 실행
+# 개발 환경에서만 실행
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
 
+    # 구글 시트 테스트
     try:
         sheet = get_google_sheet()
         print("첫 번째 행:", sheet.row_values(1))
