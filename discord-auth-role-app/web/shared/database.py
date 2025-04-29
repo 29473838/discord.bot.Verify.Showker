@@ -22,6 +22,8 @@ CREDENTIALS_JSON = os.getenv("GOOGLE_CREDENTIALS_JSON")
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 SHEET_NAME = os.getenv("SHEET_NAME", "Sheet1")
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+info = json.loads(credentials_json)
+info["private_key"] = info["private_key"].replace("\\n", "\n")
 
 # credentials.json 파일 생성
 if CREDENTIALS_JSON and not os.path.exists(SERVICE_ACCOUNT_FILE):
